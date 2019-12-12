@@ -1,7 +1,5 @@
 import argparse
 import os
-import models.dense as dense
-import models.graph as graph
 
 parser = argparse.ArgumentParser(description='Emotion Classifier')
 
@@ -18,6 +16,11 @@ parser.add_argument('--name', type=str, default=None,
 					help='Name of saved model')
 
 args = parser.parse_args()
+
+if args.model == 'dense':
+	import models.dense as dense
+else:
+	import models.graph as graph
 
 ## --------------------------------------------------------------------------------------
 
