@@ -124,26 +124,28 @@ def convert_to_depression_graph(subject_dicts, dist_dicts, depression_dicts):
     subject_graphs = []
 
     for i in range(len(subject_dicts)):
-
-        subject_dict = subject_dicts[i]
-        dist_dict = dist_dicts[i]
-        depression_dict = depression_dicts[i]
         label = None
-
-        if depression_dict[0] is None:
-            continue
-        else:
-            label = depression_dict[0]
+        if depression_dicts:
+            depression_dict = depression_dicts[i]
+            if depression_dict[0] is None:
+                continue
+            else:
+                label = depression_dict[0]
 
         nodes = []
-        for i in range(20):
-            nodes.append(subject_dict[i])
+        if subject_dicts:
+            subject_dict = subject_dicts[i]
+            for i in range(20):
+                nodes.append(subject_dict[i])
 
         edges = []
-        for i in range(20):
-            for j in range(20):
-                if i != j:
-                    edges.append(((i, j), dist_dict[(i, j)]))
+        if dist_dicts:
+            dist_dict = dist_dicts[i]
+            for i in range(20):
+                for j in range(20):
+                    if i != j:
+                        edges.append(((i, j), dist_dict[(i, j)]))
+
         subject_graphs.append(SubjectGraph(nodes=nodes, edges=edges, label=label))
 
     return subject_graphs
@@ -153,7 +155,7 @@ def convert_to_alex_graph(subject_dicts, dist_dicts, alex_dicts):
     """
     Converts a subject dict object into a manageable SubjectGraph instance for
     dgl graph creation.
-
+    Note, have not implemented alex yet
     :parameter subject_dict: dictionary representing subjects answers
     """
 
@@ -212,7 +214,7 @@ def get_data(condition):#f1-emotionalclassificationdata.csv f2-study1 f3-study3
     else:
         raise ValueError('Invalid condition')
 
-    partition = .1 * len(subject_graphs)
+    partition = int(.1 * len(subject_graphs))
     subject_graphs_train = subject_graphs[partition:]
     subject_graphs_test = subject_graphs[:partition]
 

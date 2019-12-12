@@ -1,5 +1,5 @@
 from .classifier import Classifier
-from .preprocess import get_data
+from .preprocess import get_data, convert_to_depression_graph
 
 import sys
 import numpy as np
@@ -24,6 +24,8 @@ class GraphDepressionClassifier(Classifier):
 			self.model = DepressionModel()
 		elif mode == 'test':
 			self.model = self.load_model()
+		elif mode == 'predict':
+			self.model = self.load_model()
 		else:
 			assert(False)
 
@@ -61,15 +63,12 @@ class GraphDepressionClassifier(Classifier):
 				self.model.optimizer.step()
 
 			print("Average Loss : " + str(loss_sum / loss_count))
-
+		self.test()
 		pass
 
 	def save(self):
-
 		file_path = self.model_path + self.name + '.pt'
-
 		open(file_path, 'w+').close()
-
 		torch.save(self.model.state_dict(), file_path)
 
 	def test(self):
@@ -88,9 +87,14 @@ class GraphDepressionClassifier(Classifier):
 
 	def load_model(self):
 		model = DepressionModel()
-		model.load_state_dict(torch.load(PATH))
+		file_path = self.model_path + self.name + '.pt'
+		model.load_state_dict(torch.load(file_path))
 		model.eval()
 		return model
+
+	def predict(self, input):
+		return self.model.predict(input)
+
 
 class GraphAlexClassifier(Classifier):
 
@@ -108,10 +112,11 @@ class GraphAlexClassifier(Classifier):
 			self.model = AlexModel()
 		elif mode == 'test':
 			self.model = self.load_model()
+		elif mode == 'predict':
+			self.model = self.load_model()
 		else:
 			assert(False)
 
-		pass
 
 	def train(self):
 
@@ -147,6 +152,7 @@ class GraphAlexClassifier(Classifier):
 
 			print("Average Loss : " + str(loss_sum / loss_count))
 
+		self.test()
 		pass
 
 	def save(self):
@@ -175,9 +181,13 @@ class GraphAlexClassifier(Classifier):
 
 	def load_model(self):
 		model = AlexModel()
-		model.load_state_dict(torch.load(PATH))
+		file_path = self.model_path + self.name + '.pt'
+		model.load_state_dict(torch.load(file_path))
 		model.eval()
 		return model
+
+	def predict(self, input):
+		return self.model.predict(input)
 
 
 class DepressionModel(nn.Module):
@@ -200,9 +210,9 @@ class DepressionModel(nn.Module):
 		self.raw_node_features = 2
 		self.num_classes = 2
 		self.batch_size = 16
-		self.epochs = 10
+		self.epochs = 30
 
-		self.max_edge_dist = 30
+		self.max_edge_dist = 10000
 
 		# Initialize trainable parameters
 		self.node_lifting_layer = nn.Linear(in_features=self.raw_node_features, out_features=5, bias=True)
@@ -211,7 +221,7 @@ class DepressionModel(nn.Module):
 		self.mp_layer_three = MPLayer(in_feats=100, out_feats=100)
 
 		self.readout_layer = nn.Linear(in_features=100, out_features=self.num_classes, bias=True)
-		self.optimizer = torch.optim.Adam(self.parameters(), lr=0.0005)
+		self.optimizer = torch.optim.Adam(self.parameters(), lr=0.0009)
 
 	def forward(self, g):
 		"""
@@ -284,6 +294,15 @@ class DepressionModel(nn.Module):
 
 		return graph
 
+	def predict(self, input):
+		subjects = convert_to_depression_graph([input], None, None)
+		graph = self.build_graph(subjects[0])
+		logits = self.forward(graph)
+		return self._softmax(logits.detach().numpy())
+
+	def _softmax(self, x):
+		e_x = np.exp(x - np.max(x))
+		return e_x / e_x.sum()
 
 class AlexModel(nn.Module):
 	"""
@@ -305,9 +324,9 @@ class AlexModel(nn.Module):
 		self.raw_node_features = 2
 		self.num_classes = 2
 		self.batch_size = 16
-		self.epochs = 10
+		self.epochs = 100
 
-		self.max_edge_dist = 200
+		self.max_edge_dist = 10000
 
 		# Initialize trainable parameters
 		self.node_lifting_layer = nn.Linear(in_features=self.raw_node_features, out_features=5, bias=True)
@@ -438,3 +457,6 @@ class MPLayer(nn.Module):
 			summed_message = torch.sum(message, dim=0)
 			summed_messages[i] = summed_message
 		return {'nodefeatures': summed_messages}
+
+	def predict(self, input):
+		assert(False)

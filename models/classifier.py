@@ -24,3 +24,8 @@ class Classifier(ABC):
         Called by delegator to test a model saved previously as name.
         """
         pass
+
+    @abstractmethod
+    def predict():
+
+        pass

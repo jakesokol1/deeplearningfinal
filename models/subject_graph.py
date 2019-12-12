@@ -14,8 +14,6 @@ class SubjectGraph:
 
 	def __init__(self, nodes, edges, label):
 
-		assert(nodes is not None and edges is not None and label is not None)
-
 		self.nodes = nodes
 		self.edges = edges
 		self.label = label

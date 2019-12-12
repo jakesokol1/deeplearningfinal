@@ -24,12 +24,23 @@ else:
 
 ## --------------------------------------------------------------------------------------
 
+def prediction_mode(classifier):
+	word_list = ['annoyed', 'relaxed', 'enthusiastic', 'calm', 'disappointed', 'aroused', 'neutral', 'sluggish', 'peppy', 'quiet', 'still', 'surprised', 'sleepy', 'nervous', 'afraid', 'satisfied', 'disgusted', 'angry', 'happy', 'sad']
+	while True:
+		subject = {}
+		for word in word_list:
+			x = input(word + ' x pos: ')
+			y = input(word + ' y pos: ')
+			subject[word_list.index(word)] = (x, y)
+		print(classifier.predict(subject))
+	pass
+
 def main():
 	# Initialize model
 	if not (args.condition == 'depression' or args.condition == 'alex'):
 		raise ValueError('Incorrect condition parameter')
 
-	if not (args.mode == 'train' or args.mode == 'test'):
+	if not (args.mode == 'train' or args.mode == 'test' or args.mode == 'predict'):
 		raise ValueError('Incorrect mode parameter')
 
 	if not (args.model == 'graph' or args.model =='dense'):
@@ -52,6 +63,8 @@ def main():
 		classifier.save()
 	elif args.mode == 'test':
 		classifier.test()
+	elif args.mode == 'predict':
+		prediction_mode(classifier)
 
 
 if __name__ == '__main__':
