@@ -204,15 +204,6 @@ def get_data(condition):#f1-emotionalclassificationdata.csv f2-study1 f3-study3
     distbig_dict = []
     for _, xy in enumerate(xybig_dict):
         distbig_dict.append(dist_dictify(xy))
-    sack = int(.1 * (len(xybig_dict)))
-    xy_test = xybig_dict[:sack]
-    xy_train = xybig_dict[sack:]
-    dist_test = distbig_dict[:sack]
-    dist_train = distbig_dict[sack:]
-    dep_test = depbig_dict[:sack]
-    dep_train = depbig_dict[sack:]
-    alex_test = alexbig_dict[:sack]
-    alex_train = alexbig_dict[sack:]
 
     if condition == 'depression':
         subject_graphs = convert_to_depression_graph(xybig_dict, distbig_dict, depbig_dict)
@@ -221,8 +212,9 @@ def get_data(condition):#f1-emotionalclassificationdata.csv f2-study1 f3-study3
     else:
         raise ValueError('Invalid condition')
 
-    subject_graphs_train = subject_graphs[sack:]
-    subject_graphs_test = subject_graphs[:sack]
+    partition = .1 * len(subject_graphs)
+    subject_graphs_train = subject_graphs[partition:]
+    subject_graphs_test = subject_graphs[:partition]
 
     return (subject_graphs_train, subject_graphs_test)
 

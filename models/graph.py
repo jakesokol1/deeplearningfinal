@@ -12,7 +12,7 @@ class GraphDepressionClassifier(Classifier):
 
 	def __init__(self, mode, name):
 
-		self.model_path = './graph_models/'
+		self.model_path = './models/graph_models/'
 
 		print('Fetching Data...')
 		self.training_data, self.testing_data = get_data('depression')
@@ -23,7 +23,7 @@ class GraphDepressionClassifier(Classifier):
 		if mode == 'train':
 			self.model = DepressionModel()
 		elif mode == 'test':
-			assert(False)
+			self.model = self.load_model()
 		else:
 			assert(False)
 
@@ -86,6 +86,11 @@ class GraphDepressionClassifier(Classifier):
 		logits = self.model.forward(batched_graph)
 		print('Accuracy : ' + str(self.model.accuracy_function(logits, labels)))
 
+	def load_model(self):
+		model = DepressionModel()
+		model.load_state_dict(torch.load(PATH))
+		model.eval()
+		return model
 
 class GraphAlexClassifier(Classifier):
 
@@ -102,7 +107,7 @@ class GraphAlexClassifier(Classifier):
 		if mode == 'train':
 			self.model = AlexModel()
 		elif mode == 'test':
-			assert(False)
+			self.model = self.load_model()
 		else:
 			assert(False)
 
@@ -148,7 +153,7 @@ class GraphAlexClassifier(Classifier):
 
 		file_path = self.model_path + self.name + '.pt'
 
-		open(file_path, 'a').close()
+		open(file_path, 'w+').close()
 
 		torch.save(self.model.state_dict(), file_path)
 
@@ -167,6 +172,12 @@ class GraphAlexClassifier(Classifier):
 		batched_graph = dgl.batch(graph_list)
 		logits = self.model.forward(batched_graph)
 		print('Accuracy : ' + str(self.model.accuracy_function(logits, labels)))
+
+	def load_model(self):
+		model = AlexModel()
+		model.load_state_dict(torch.load(PATH))
+		model.eval()
+		return model
 
 
 class DepressionModel(nn.Module):
