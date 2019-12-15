@@ -63,6 +63,7 @@ class GraphDepressionClassifier(Classifier):
 				self.model.optimizer.step()
 
 			print("Average Loss : " + str(loss_sum / loss_count))
+			self.test()
 		self.test()
 		pass
 
@@ -150,6 +151,8 @@ class GraphAlexClassifier(Classifier):
 				l.backward()
 				self.model.optimizer.step()
 
+
+
 			print("Average Loss : " + str(loss_sum / loss_count))
 
 		self.test()
@@ -210,7 +213,7 @@ class DepressionModel(nn.Module):
 		self.raw_node_features = 2
 		self.num_classes = 2
 		self.batch_size = 16
-		self.epochs = 30
+		self.epochs = 50
 
 		self.max_edge_dist = 10000
 
